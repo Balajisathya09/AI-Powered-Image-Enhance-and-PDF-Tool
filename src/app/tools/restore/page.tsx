@@ -91,7 +91,7 @@ export default function RestorePage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} maxSize={Infinity} />
           </motion.div>
         ) : (
           <motion.div

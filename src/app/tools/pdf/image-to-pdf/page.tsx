@@ -125,14 +125,14 @@ export default function ImageToPdfPage() {
         if (!ctx) throw new Error("Could not create canvas context");
         ctx.drawImage(htmlImg, 0, 0);
 
-        const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.90);
+        const jpegDataUrl = canvas.toDataURL("image/jpeg", 0.85);
         const jpegResponse = await fetch(jpegDataUrl);
         const jpegBytes = await jpegResponse.arrayBuffer();
 
         const embeddedImage = await pdfDoc.embedJpg(jpegBytes);
         const { width, height } = embeddedImage.scale(1.0);
         
-        // Add a page with the same dimensions as the image
+        // Page exactly matches image dimensions — no extra whitespace
         const page = pdfDoc.addPage([width, height]);
         page.drawImage(embeddedImage, {
           x: 0,
@@ -142,8 +142,8 @@ export default function ImageToPdfPage() {
         });
       }
 
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
+      const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       setPdfBlobUrl(url);
     } catch (error) {

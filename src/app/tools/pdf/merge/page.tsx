@@ -65,16 +65,49 @@ export default function MergePdfPage() {
       // Initialize a new PDFDocument
       const mergedPdf = await PDFDocument.create();
 
+      // Determine target page WIDTH from the first page of the first file
+      let targetWidth = 595.28;  // Default A4 width in points
+
+      const firstFileBytes = await files[0].file.arrayBuffer();
+      const firstPdf = await PDFDocument.load(firstFileBytes);
+      if (firstPdf.getPageCount() > 0) {
+        const firstPage = firstPdf.getPage(0);
+        targetWidth = firstPage.getSize().width;
+      }
+
       for (const selectedFile of files) {
         const fileBytes = await selectedFile.file.arrayBuffer();
         const pdf = await PDFDocument.load(fileBytes);
-        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-        copiedPages.forEach((page) => mergedPdf.addPage(page));
+        
+        for (let i = 0; i < pdf.getPageCount(); i++) {
+          const srcPage = pdf.getPage(i);
+          const { width: srcW, height: srcH } = srcPage.getSize();
+
+          // If source width already matches, just copy directly
+          if (Math.abs(srcW - targetWidth) < 1) {
+            const [copiedPage] = await mergedPdf.copyPages(pdf, [i]);
+            mergedPdf.addPage(copiedPage);
+          } else {
+            // Scale to match target width, height adjusts proportionally
+            const scale = targetWidth / srcW;
+            const newHeight = srcH * scale;
+
+            const embeddedPage = await mergedPdf.embedPage(srcPage);
+            const newPage = mergedPdf.addPage([targetWidth, newHeight]);
+
+            newPage.drawPage(embeddedPage, {
+              x: 0,
+              y: 0,
+              width: targetWidth,
+              height: newHeight,
+            });
+          }
+        }
       }
 
-      // Serialize the PDFDocument to bytes (a Uint8Array)
-      const pdfBytes = await mergedPdf.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      // Serialize with compression (reduces structural overhead, keeps quality)
+      const pdfBytes = await mergedPdf.save({ useObjectStreams: true });
+      const blob = new Blob([pdfBytes as any], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       
       setMergedBlobUrl(url);

@@ -112,6 +112,7 @@ export default function EnhancePage() {
             <FileUploader 
               onFileSelect={handleFileSelect} 
               isProcessing={isProcessing} 
+              maxSize={Infinity}
             />
           </motion.div>
         ) : (

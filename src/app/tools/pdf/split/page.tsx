@@ -61,8 +61,8 @@ export default function SplitPdfPage() {
           const newPdf = await PDFDocument.create();
           const [copiedPage] = await newPdf.copyPages(pdf, [i]);
           newPdf.addPage(copiedPage);
-          const bytes = await newPdf.save();
-          const blob = new Blob([bytes], { type: "application/pdf" });
+        const bytes = await newPdf.save({ useObjectStreams: true });
+          const blob = new Blob([bytes as any], { type: "application/pdf" });
           results.push({
             name: `${selectedFile.name.replace(".pdf", "")}_page_${i + 1}.pdf`,
             url: URL.createObjectURL(blob),
@@ -106,8 +106,8 @@ export default function SplitPdfPage() {
         const copiedPages = await newPdf.copyPages(pdf, uniquePages);
         copiedPages.forEach((page) => newPdf.addPage(page));
 
-        const bytes = await newPdf.save();
-        const blob = new Blob([bytes], { type: "application/pdf" });
+        const bytes = await newPdf.save({ useObjectStreams: true });
+        const blob = new Blob([bytes as any], { type: "application/pdf" });
         let rangeLabel = uniquePages.map((p) => p + 1).join(",");
         if (rangeLabel.length > 20) {
           rangeLabel = "custom_selection";

@@ -24,6 +24,17 @@ export function FileUploader({
 }: FileUploaderProps) {
   const { t } = useLanguage();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (selectedFile && selectedFile.type.startsWith('image/')) {
+      const url = URL.createObjectURL(selectedFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [selectedFile]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -32,8 +43,20 @@ export function FileUploader({
     }
   }, [onFileSelect]);
 
+  const onDropRejected = useCallback((fileRejections: any[]) => {
+    if (fileRejections.length > 0) {
+      const error = fileRejections[0].errors[0];
+      if (error.code === 'file-too-large') {
+        alert(`File is too large! Maximum allowed size is ${Math.round(maxSize / (1024 * 1024))} MB.`);
+      } else {
+        alert(`Invalid file: ${error.message}`);
+      }
+    }
+  }, [maxSize]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept,
     maxSize,
     multiple: false,
@@ -76,9 +99,15 @@ export function FileUploader({
               exit={{ opacity: 0, scale: 0.9 }}
               className="flex flex-col items-center text-center p-6"
             >
-              <div className="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-4">
-                <FileIcon className="w-8 h-8" />
-              </div>
+              {previewUrl ? (
+                <div className="relative w-32 h-32 mb-4 rounded-xl overflow-hidden shadow-sm border border-border/50">
+                  <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="w-16 h-16 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-4">
+                  <FileIcon className="w-8 h-8" />
+                </div>
+              )}
               <p className="font-semibold text-foreground truncate max-w-xs">{selectedFile.name}</p>
               <p className="text-sm text-muted-foreground mt-1">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</p>
               <Button 
@@ -106,7 +135,8 @@ export function FileUploader({
                 {t.upload.drag}
               </p>
               <p className="text-sm text-muted-foreground">
-                Supports JPG, PNG, WEBP, HEIC up to 20MB
+                Supports {Object.values(accept).flat().map(ext => ext.replace('.', '').toUpperCase()).join(', ')} 
+                {maxSize === Infinity ? ' (No size limit)' : ` up to ${Math.round(maxSize / (1024 * 1024))}MB`}
               </p>
             </motion.div>
           )}

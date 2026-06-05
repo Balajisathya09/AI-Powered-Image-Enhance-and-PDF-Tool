@@ -5,7 +5,7 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { FileUploader } from "@/components/ui/FileUploader";
 import { BeforeAfterSlider } from "@/components/ui/BeforeAfterSlider";
 import { Button } from "@/components/ui/button";
-import { Download, ArrowLeft, Image as ImageIconOutline } from "lucide-react";
+import { Download, ArrowLeft, Camera } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -76,11 +76,11 @@ export default function UpscalePage() {
         </Link>
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <ImageIconOutline className="w-8 h-8 text-primary" />
-            {t.tools.upscaler}
+            <Camera className="w-8 h-8 text-primary" />
+            AI Image Upscaler
           </h1>
           <p className="text-muted-foreground mt-1">
-            Upscale your images to 2X or 4X resolution without losing quality.
+            Cinematic Sony A1 · 85mm f/1.4 portrait enhancement with 2× or 4× upscaling.
           </p>
         </div>
       </div>
@@ -102,7 +102,7 @@ export default function UpscalePage() {
                 </TabsList>
               </Tabs>
             </div>
-            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} maxSize={Infinity} />
           </motion.div>
         ) : (
           <motion.div

@@ -205,7 +205,7 @@ export default function RestorePhotoPage() {
               AI Photo Restorer
             </h1>
             <p className="text-muted-foreground mt-1">
-              Colorizes B&W photos · Enhances · Upscales to 2× & 4×
+              Colorize B&W photos · Premium color restoration · Upscale to 2× & 4× HD
             </p>
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function RestorePhotoPage() {
                   </div>
                   <div>
                     <p className="text-lg font-semibold">Drop your photo here</p>
-                    <p className="text-muted-foreground text-sm mt-1">B&W photos are colorized. All photos are upscaled to 2× & 4× HD.</p>
+                    <p className="text-muted-foreground text-sm mt-1">B&W → Auto-colorized · Color → Premium cinematic restoration · All upscaled to 2× & 4× HD</p>
                   </div>
                 </div>
               )}

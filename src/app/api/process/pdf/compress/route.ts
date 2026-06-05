@@ -5,7 +5,7 @@ import sharp from 'sharp';
 async function compressPdfWithFactor(buffer: Buffer, factor: number): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(buffer);
   const rawContext = pdfDoc.context;
-  const indirectObjects = rawContext.indirectObjects;
+  const indirectObjects = (rawContext as any).indirectObjects;
 
   // factor goes from 0.0 (max compression / lowest quality) to 1.0 (min compression / highest quality)
   const targetQuality = Math.round(10 + 85 * factor); // 10 to 95 quality

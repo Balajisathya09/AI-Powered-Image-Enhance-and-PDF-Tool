@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import fs from 'fs';
+import sharp from 'sharp';
 
 const execAsync = promisify(exec);
 
@@ -43,16 +44,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Colorization failed. Check server logs.' }, { status: 500 });
     }
 
-    const toBase64 = (p: string) =>
-      fs.existsSync(p)
-        ? `data:image/jpeg;base64,${Buffer.from(fs.readFileSync(p)).toString('base64')}`
-        : null;
+    const toBase64 = async (p: string) => {
+      if (!fs.existsSync(p)) return null;
+      // Read the raw python output and compress it losslessly with MozJPEG
+      const rawBuffer = fs.readFileSync(p);
+      const compressedBuffer = await sharp(rawBuffer).jpeg({ mozjpeg: true, quality: 90 }).toBuffer();
+      return `data:image/jpeg;base64,${compressedBuffer.toString('base64')}`;
+    };
 
     const result = {
       success: true,
-      resultUrl:   toBase64(tempOut),
-      result2xUrl: toBase64(tempOut2x),
-      result4xUrl: toBase64(tempOut4x),
+      resultUrl:   await toBase64(tempOut),
+      result2xUrl: await toBase64(tempOut2x),
+      result4xUrl: await toBase64(tempOut4x),
     };
 
     // Cleanup

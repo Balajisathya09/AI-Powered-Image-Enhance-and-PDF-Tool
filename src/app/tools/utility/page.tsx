@@ -155,6 +155,11 @@ export default function UtilityToolsPage() {
   const [bottomAlignment, setBottomAlignment] = useState<"left"|"center"|"right">("center");
   const memeCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const slsConfig = [
+    { label: "Top Offset",    val: topOffset,    set: setTopOffset,    unit: "" },
+    { label: "Bottom Offset", val: bottomOffset, set: setBottomOffset, unit: "" },
+  ];
+
   /* ── Editor ── */
   const [editor, setEditor]       = useState<EditorState>(defaultEditor);
   const editorRef                 = useRef<EditorState>(defaultEditor);

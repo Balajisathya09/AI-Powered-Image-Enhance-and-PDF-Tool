@@ -4,7 +4,7 @@ import { useLanguage } from "@/lib/i18n/LanguageContext";
 import { BeforeAfterSlider } from "@/components/ui/BeforeAfterSlider";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Upload, ImageIcon, Sparkles, Scissors, Image as ImageIconOutline, Settings, FileText, Wrench, Wand2 } from "lucide-react";
+import { Upload, ImageIcon, Sparkles, Scissors, Image as ImageIconOutline, Settings, FileText, Wrench, Wand2, Film, AudioLines, Headphones, ScanText } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -17,6 +17,10 @@ const toolCategories = [
   { id: "compress", icon: Settings, path: "/tools/compress" },
   { id: "pdf", icon: FileText, path: "/tools/pdf" },
   { id: "utility", icon: Wrench, path: "/tools/utility" },
+  { id: "video-compress", icon: Film, path: "/tools/video/compress" },
+  { id: "video-to-text", icon: AudioLines, path: "/tools/video/to-text" },
+  { id: "video-to-audio", icon: Headphones, path: "/tools/video/to-audio" },
+  { id: "image-to-text", icon: ScanText, path: "/tools/image-to-text" },
 ];
 
 export default function Home() {
@@ -31,6 +35,10 @@ export default function Home() {
     "compress": t.tools.compressor,
     "pdf": t.tools.pdfToolkit,
     "utility": t.tools.utility,
+    "video-compress": "Video Compressor",
+    "video-to-text": "Video to Text",
+    "video-to-audio": "Video to Audio",
+    "image-to-text": "Image to Text (OCR)",
   };
 
   return (

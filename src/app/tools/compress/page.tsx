@@ -13,16 +13,30 @@ export default function CompressPage() {
   const { t } = useLanguage();
   const [isProcessing, setIsProcessing] = useState(false);
   const [resultReady, setResultReady] = useState(false);
-  const [level, setLevel] = useState("medium");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [targetSizeKB, setTargetSizeKB] = useState<string>("500");
   const [resultData, setResultData] = useState<{dataUrl: string, originalSize: number, compressedSize: number} | null>(null);
 
-  const handleFileSelect = async (file: File) => {
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+  };
+
+  const formatSize = (bytes: number) => {
+    const kb = bytes / 1024;
+    if (kb >= 1024) {
+      return `${(kb / 1024).toFixed(2)} MB`;
+    }
+    return `${kb.toFixed(2)} KB`;
+  };
+
+  const handleCompress = async () => {
+    if (!selectedFile) return;
     setIsProcessing(true);
     
     try {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('level', level);
+      formData.append('file', selectedFile);
+      formData.append('targetSizeKB', targetSizeKB);
 
       const res = await fetch('/api/process/compress', {
         method: 'POST',
@@ -70,16 +84,28 @@ export default function CompressPage() {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6"
           >
-            <div className="flex justify-center">
-              <Tabs defaultValue="medium" onValueChange={setLevel} className="w-full max-w-md">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="low">Low (High Quality)</TabsTrigger>
-                  <TabsTrigger value="medium">Medium</TabsTrigger>
-                  <TabsTrigger value="high">High (Smallest)</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} maxSize={Infinity} />
+
+            {selectedFile && !isProcessing && (
+              <div className="mt-8 flex flex-col items-center gap-4 border-t pt-8">
+                <div className="w-full max-w-sm space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold block text-center">Target File Size (KB)</label>
+                    <input 
+                      type="number" 
+                      value={targetSizeKB}
+                      onChange={(e) => setTargetSizeKB(e.target.value)}
+                      className="w-full h-12 bg-background border border-border rounded-xl px-4 text-center text-lg font-medium"
+                      placeholder="e.g. 500"
+                    />
+                    <p className="text-xs text-muted-foreground text-center">Enter the exact size in KB you want to hit.</p>
+                  </div>
+                  <Button size="lg" className="w-full h-12 rounded-full text-lg font-semibold" onClick={handleCompress}>
+                    Compress Image
+                  </Button>
+                </div>
+              </div>
+            )}
           </motion.div>
         ) : (
           <motion.div
@@ -95,13 +121,13 @@ export default function CompressPage() {
                 <div className="p-4 bg-muted/50 rounded-xl">
                   <p className="text-sm text-muted-foreground mb-1">Original Size</p>
                   <p className="text-xl font-medium">
-                    {resultData ? (resultData.originalSize / 1024).toFixed(2) : 0} KB
+                    {resultData ? formatSize(resultData.originalSize) : '0 KB'}
                   </p>
                 </div>
                 <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
                   <p className="text-sm text-muted-foreground mb-1">Compressed Size</p>
                   <p className="text-xl font-bold text-primary">
-                    {resultData ? (resultData.compressedSize / 1024).toFixed(2) : 0} KB
+                    {resultData ? formatSize(resultData.compressedSize) : '0 KB'}
                   </p>
                 </div>
               </div>
@@ -114,14 +140,18 @@ export default function CompressPage() {
                   if (resultData?.dataUrl) {
                     const a = document.createElement('a');
                     a.href = resultData.dataUrl;
-                    a.download = `compressed_${level}.jpg`;
+                    a.download = `compressed_${targetSizeKB}KB_${selectedFile?.name || 'image.jpg'}`;
                     a.click();
                   }
                 }}>
                   <Download className="mr-2 w-5 h-5" />
                   Download
                 </Button>
-                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 rounded-full" onClick={() => { setResultReady(false); setIsProcessing(false); }}>
+                <Button size="lg" variant="outline" className="w-full sm:w-auto h-12 px-8 rounded-full" onClick={() => { 
+                  setResultReady(false); 
+                  setIsProcessing(false); 
+                  setSelectedFile(null); 
+                }}>
                   Compress Another
                 </Button>
               </div>

@@ -17,11 +17,11 @@ export async function POST(req: NextRequest) {
     const image = sharp(buffer);
     
     if (targetFormat === 'png') {
-      convertedBuffer = await image.png().toBuffer();
+      convertedBuffer = await image.png({ compressionLevel: 9, effort: 10 }).toBuffer();
     } else if (targetFormat === 'jpg' || targetFormat === 'jpeg') {
-      convertedBuffer = await image.jpeg().toBuffer();
+      convertedBuffer = await image.jpeg({ mozjpeg: true, quality: 90 }).toBuffer();
     } else if (targetFormat === 'webp') {
-      convertedBuffer = await image.webp().toBuffer();
+      convertedBuffer = await image.webp({ lossless: true, effort: 6 }).toBuffer();
     } else {
       return NextResponse.json({ error: 'Unsupported target format' }, { status: 400 });
     }

@@ -80,7 +80,7 @@ export default function ConvertPage() {
                 <option value="webp">WEBP</option>
               </select>
             </div>
-            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+            <FileUploader onFileSelect={handleFileSelect} isProcessing={isProcessing} maxSize={Infinity} />
           </motion.div>
         ) : (
           <motion.div
